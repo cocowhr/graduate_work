@@ -1,0 +1,111 @@
+{% extends 'html/layout.html' %}
+{% load staticfiles %}
+{% block headjs %}
+    <script type="text/javascript">
+        function markabnormal(tableid, id) {
+            $.post('{% url 'markabnormal' %}', {
+                tableid: tableid,
+                id: id,
+                type: 1,
+            }, function (result) {
+                if (result.success) {
+                    $("#abnormal" + tableid + "_" + id).addClass("hidden");
+                    $("#normal" + tableid + "_" + id).removeClass("hidden");
+                }
+                if (result.fail) {
+                }
+            });
+        }
+        function marknormal(tableid, id) {
+            $.post('{% url 'marknormal' %}', {
+                tableid: tableid,
+                id: id,
+                type: 1,
+            }, function (result) {
+                if (result.success) {
+                    $("#abnormal" + tableid + "_" + id).removeClass("hidden");
+                    $("#normal" + tableid + "_" + id).addClass("hidden");
+                }
+                if (result.fail) {
+                }
+            });
+        }
+    </script>
+{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="page-header">
+                <div class="container">
+                    <div class="row clearfix">
+                        <div class="col-md-10 column">
+                            <h3>选中规律外的数据表</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                <div class="panel-group" id="accordion{{ table.id }}" role="tablist" aria-multiselectable="true">
+                    <div class="panel panel-danger">
+                        <div class="panel-heading" role="tab" id="headingUnpayed{{ table.id }}">
+                            <div class="container">
+                                <div class="row clearfix">
+                                    <div class="col-md-3 column">
+                                        <h4 class="panel-title">
+                                            <a style="font-size: 25px" role="button" data-toggle="collapse"
+                                               data-parent="#accordion{{ table.id }}" href="#collapseUnpayed{{ table.id }}"
+                                               aria-expanded="true" aria-controls="collapseUnpayed{{ table.id }}">
+                                                {{ table.name }}
+                                            </a>
+                                        </h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="collapseUnpayed{{ table.id }}" class="panel-collapse collapse in" role="tabpanel"
+                             aria-labelledby="headingUnpayed{{ table.id }}">
+                            <div class="panel-body">
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        {% for f in table.field %}
+                                            <th>{{ f }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for row in table.data %}
+                                        <tr>
+                                            <td>{{ row.id }}</td>
+                                            {% for r in row.info %}
+                                                <td>{{ r }}</td>
+                                            {% endfor %}
+                                            <td>
+                                                <button onclick="markabnormal({{ table.id }},{{ row.id }})"
+                                                        id="abnormal{{ table.id }}_{{ row.id }}"
+                                                        class="btn btn-danger btn-primary {% if row.alert == 1 %}hidden{% endif %}">
+                                                    标记异常
+                                                </button>
+                                                <button onclick="marknormal({{ table.id }},{{ row.id }})"
+                                                        id="normal{{ table.id }}_{{ row.id }}"
+                                                        class="btn btn-default btn-primary {% if row.alert == 0 %}hidden{% endif %}">
+                                                    取消异常标记
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+    {{ block.super }}
+{% endblock %}

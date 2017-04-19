@@ -1,0 +1,128 @@
+{% extends 'html/layout.html' %}
+{% load staticfiles %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="page-header">
+                <h3>同时运行进程挖掘分类规律表</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="panel-group" id="accordion1" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-danger">
+                    <div class="panel-heading" role="tab" id="headingUnpayed1">
+                        <div class="container">
+                            <div class="row clearfix">
+                                <div class="col-md-6 column">
+                                    <h4 class="panel-title">
+                                        <a style="font-size: 25px" role="button" data-toggle="collapse"
+                                           data-parent="#accordion1" href="#collapseUnpayed1"
+                                           aria-expanded="true" aria-controls="collapseUnpayed1">
+                                            同时运行进程最多的规律
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div class="col-md-2 column">
+                                    <a href="{% url 'showrawlist' %}">
+                                    <button class="btn btn-default btn-primary pull-right">查看全部原数据表</button>
+                                    </a>
+                                </div>
+                                 <div class="col-md-2 column">
+                                        <a href="{% url 'showapriorilist' 3 %}">
+                                            <button class="btn btn-default btn-primary pull-right">查看apriori结果表</button>
+                                        </a>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="collapseUnpayed1" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="headingUnpayed1">
+                        <div class="panel-body">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    {% for f in all.field %}
+                                        <th>{{ f }}</th>
+                                    {% endfor %}
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for row in typeone.data %}
+                                    <tr>
+                                        {% for r in row %}
+                                            {% if r != None %}
+                                            <td>{{ r }}</td>
+                                                {% else %}
+                                                <td></td>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-group" id="accordion2" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-danger">
+                    <div class="panel-heading" role="tab" id="headingUnpayed2">
+                       <div class="container">
+                            <div class="row clearfix">
+                                <div class="col-md-3 column">
+                                    <h4 class="panel-title">
+                                        <a style="font-size: 25px" role="button" data-toggle="collapse"
+                                           data-parent="#accordion2" href="#collapseUnpayed2"
+                                           aria-expanded="true" aria-controls="collapseUnpayed2">
+                                            支持度最高的规律
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div class="col-md-3 column">
+                                </div>
+                                <div class="col-md-2 column">
+                                </div>
+                                <div class="col-md-2 column">
+                                </div>
+                                <div class="col-md-2 column">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="collapseUnpayed2" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="headingUnpayed2">
+                        <div class="panel-body">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    {% for f in all.field %}
+                                        <th>{{ f }}</th>
+                                    {% endfor %}
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for row in typetwo.data %}
+                                    <tr>
+                                        {% for r in row %}
+                                            {% if r != None %}
+                                            <td>{{ r }}</td>
+                                                {% else %}
+                                                <td></td>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{ block.super }}
+{% endblock %}

@@ -1,0 +1,260 @@
+{% extends 'html/layout.html' %}
+{% load staticfiles %}
+{% block headjs %}
+    <script type="text/javascript">
+        function calculategenelist(id) {
+            $("#getgene").text("计算中")
+            $.post('{% url 'calculategenelist' %}', {
+                id: id
+            }, function (result) {
+                if (result.success) {
+                    $("#getgene").text("挖掘一组规则");
+                    var data = result.context.gene.data;
+                    var tbody = $(".tbody");
+                    tbody.children(".spe").remove();
+                    for (i in data) {
+                        var tr = $("<tr class='spe'></tr>");
+                        tbody.append(tr);
+                        tr.append($("<td>" + data[i].id + "</td>"));
+                        for (j in data[i].info) {
+                            tr.append($("<td>" + data[i].info[j] + "</td>"));
+                        }
+                        var td = $("<td></td>");
+                        tr.append(td);
+                        var abnormal = $("<button id='abnormal"+id+"_"+data[i].id+"' onclick='markabnormal("+id+","+data[i].id+")' class='btn btn-danger btn-primary'>标记异常</button>");
+                        var normal = $("<button id='normal"+id+"_"+data[i].id+"' onclick='marknormal("+id+","+data[i].id+")' class='btn btn-default btn-primary'>取消异常标记</button>");
+                        if (data[i].alert == 0) {
+                            normal.addClass('hidden');
+                        }
+                        else {
+                            abnormal.addClass('hidden');
+                        }
+                        td.append(abnormal);
+                        td.append(normal);
+                    }
+                }
+                if (result.fail) {
+                    $("#getgene").text("计算失败");
+                }
+            });
+        }
+        function calculate(id) {
+            $(".waiting").html("计算中")
+            $("#waiting_abnormal").addClass("hidden");
+            $("#waiting_normal").addClass("hidden");
+            var parameter = new Array();
+            $(".gene").each(function () {
+                parameter.push($.trim($(this).val()));
+            });
+            $.post('{% url 'genecalculate' %}', {
+                parameter: parameter,
+                id: id
+            }, function (result) {
+                if (result.success) {
+                    $(".waiting").html(result.context.fit);
+                    $("#save").removeClass("hidden");
+                }
+                if (result.fail) {
+                    $(".waiting").html("计算失败");
+                }
+            });
+        }
+        function markabnormal(tableid, id) {
+            $.post('{% url 'markabnormal' %}', {
+                tableid: tableid,
+                id: id,
+                type: 2
+            }, function (result) {
+                if (result.success) {
+                    $("#abnormal" + tableid + "_" + id).addClass("hidden");
+                    $("#normal" + tableid + "_" + id).removeClass("hidden");
+                }
+                if (result.fail) {
+                }
+            });
+        }
+        function marknormal(tableid, id) {
+            $.post('{% url 'marknormal' %}', {
+                tableid: tableid,
+                id: id,
+                type: 2,
+            }, function (result) {
+                if (result.success) {
+                    $("#abnormal" + tableid + "_" + id).removeClass("hidden");
+                    $("#normal" + tableid + "_" + id).addClass("hidden");
+                }
+                if (result.fail) {
+                }
+            });
+        }
+        function savegene(id) {
+            $("#save").text("保存中")
+            var parameter = new Array();
+            $(".gene").each(function () {
+                parameter.push($.trim($(this).val()));
+            });
+            $.post('{% url 'savegene' %}', {
+                parameter: parameter,
+                id: id
+            }, function (result) {
+                if (result.success) {
+                    $("#save").addClass("hidden");
+                    var data = result.context.gene.data;
+                    var tbody = $(".tbody");
+                    tbody.children(".spe").remove();
+                    for (i in data) {
+                        var tr = $("<tr class='spe'></tr>");
+                        tbody.append(tr);
+                        tr.append($("<td>" + data[i].id + "</td>"));
+                        for (j in data[i].info) {
+                            tr.append($("<td>" + data[i].info[j] + "</td>"));
+                        }
+                        var td = $("<td></td>");
+                        tr.append(td);
+                        var abnormal = $("<button id='abnormal"+id+"_"+data[i].id+"' onclick='markabnormal("+id+","+data[i].id+")' class='btn btn-danger btn-primary'>标记异常</button>");
+                        var normal = $("<button id='normal"+id+"_"+data[i].id+"' onclick='marknormal("+id+","+data[i].id+")' class='btn btn-default btn-primary'>取消异常标记</button>");
+                        if (data[i].alert == 0) {
+                            normal.addClass('hidden');
+                        }
+                        else {
+                            abnormal.addClass('hidden');
+                        }
+                        td.append(abnormal);
+                        td.append(normal);
+                    }
+                }
+                if (result.fail) {
+                    $("#save").text("保存失败")
+                }
+            });
+        }
+    </script>
+{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="page-header">
+                <h3>遗传算法结果表</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="panel-group" id="accordion1" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-danger">
+                    <div class="panel-heading" role="tab" id="headingUnpayed1">
+                        <div class="container">
+                            <div class="row clearfix">
+                                <div class="col-md-6 column">
+                                    <h4 class="panel-title">
+                                        <a style="font-size: 25px" role="button" data-toggle="collapse"
+                                           data-parent="#accordion1" href="#collapseUnpayed1"
+                                           aria-expanded="true" aria-controls="collapseUnpayed1">
+                                            {{ gene.name }}
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div class="col-md-2 column">
+                                    <a href="{% url 'showrawlist' %}">
+                                        <button class="btn btn-default btn-primary pull-right">查看全部原数据表</button>
+                                    </a>
+                                </div>
+                                <div class="col-md-2 column">
+                                    <a href="{% url 'showmiddlelist' gene.id %}">
+                                        <button class="btn btn-default btn-primary pull-right">查看中间表</button>
+                                    </a>
+                                </div>
+                                {% if gene.stage == '3' %}
+                                    <div class="col-md-2 column">
+                                        <a href="{% url 'showapriorilist' gene.id %}">
+                                            <button class="btn btn-default btn-primary pull-right">查看apriori结果表</button>
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="collapseUnpayed1" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="headingUnpayed1">
+                        <div class="panel-body">
+                            <div class="container">
+                                <div class="row clearfix">
+                                    <div class="col-md-12 column">
+                                        <button onclick="calculategenelist({{ gene.id }})" style="width: inherit"
+                                                id="getgene"
+                                                class="btn btn-default btn-primary">
+                                            挖掘一组规则
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    {% for f in gene.field %}
+                                        <th>{{ f }}</th>
+                                    {% endfor %}
+                                </tr>
+                                </thead>
+                                <tbody class="tbody">
+                                <tr>
+                                    {% for f in gene.field %}
+                                        {% if f != "id" and f != "fit" and f != "create_time" and f != "alert" %}
+                                            <td><input type="text" class="form-control gene"></td>
+                                        {% elif f == "fit" %}
+                                            <td class="waiting">待计算</td>
+                                        {% elif f == "create_time" %}
+                                            <td>
+                                                <button onclick="calculate({{ gene.id }})"
+                                                        class="btn btn-default btn-primary">计算该行适应度
+                                                </button>
+                                            </td>
+                                        {% elif f == "alert" %}
+                                            <td>
+                                                <button onclick="savegene({{ gene.id }})"
+                                                        id="save"
+                                                        class="btn btn-default btn-primary hidden">
+                                                    保存
+                                                </button>
+                                            </td>
+                                        {% else %}
+                                            <td></td>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tr>
+                                {% for row in gene.data %}
+                                    <tr class="spe">
+                                        <td>{{ row.id }}</td>
+                                        {% for r in row.info %}
+                                            {% if r != None %}
+                                                <td>{{ r }}</td>
+                                            {% else %}
+                                                <td></td>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <td>
+                                            <button onclick="markabnormal({{ gene.id }},{{ row.id }})"
+                                                    id="abnormal{{ gene.id }}_{{ row.id }}"
+                                                    class="btn btn-danger btn-primary {% if row.alert == 1 %}hidden{% endif %}">
+                                                标记异常
+                                            </button>
+                                            <button onclick="marknormal({{ gene.id }},{{ row.id }})"
+                                                    id="normal{{ gene.id }}_{{ row.id }}"
+                                                    class="btn btn-default btn-primary {% if row.alert == 0 %}hidden{% endif %}">
+                                                取消异常标记
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{ block.super }}
+{% endblock %}

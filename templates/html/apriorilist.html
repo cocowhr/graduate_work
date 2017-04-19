@@ -1,0 +1,356 @@
+{% extends 'html/layout.html' %}
+{% load staticfiles %}
+{% block headjs %}
+    <script type="text/javascript">
+        function filter(id) {
+            var parameter = new Array();
+            $(".checkbox").each(function () {
+                if ($(this).is(':checked')) {
+                    parameter.push($(this).attr('name'));
+                }
+            });
+            $.post('{% url 'apriorifilter' %}', {
+                parameter: parameter,
+                id: id
+            }, function (result) {
+                if (result.success) {
+                    var field = result.context.middle.field;
+                    var data = result.context.middle.data;
+                    var table = $(".table");
+                    table.children().remove();
+                    var thead = $("<thead></thead>");
+                    table.append(thead);
+                    var tr1 = $("<tr></tr>");
+                    thead.append(tr1);
+                    var th = $("<th></th>");
+                    tr1.append(th);
+                    var label1 = $("<label><input id='checkall' onchange='checkall()' type='checkbox' /></label>")
+                    th.append(label1);
+                    for (x in field) {
+                        tr1.append($("<th>" + field[x] + "</th>"));
+                    }
+                    var tbody = $("<tbody></tbody>");
+                    table.append(tbody);
+                    for (i in data) {
+                        var tr = $("<tr></tr>");
+                        tbody.append(tr);
+                        var td1 = $("<td></td>");
+                        tr.append(td1);
+                        var label2 = $("<label><input class='checkrow' name='" + data[i].id + "' type='checkbox' /></label>")
+                        tr.append($("<td>" + data[i].id + "</td>"));
+                        td1.append(label2);
+                        for (j in data[i].info) {
+                            tr.append($("<td>" + data[i].info[j] + "</td>"));
+                        }
+                        var td = $("<td></td>");
+                        tr.append(td);
+                        var abnormal = $("<button id='abnormal" + id + "_" + data[i].id + "' onclick='markabnormal(" + id + "," + data[i].id + ")' class='btn btn-danger btn-primary'>标记异常</button>");
+                        var normal = $("<button id='normal" + id + "_" + data[i].id + "' onclick='marknormal(" + id + "," + data[i].id + ")' class='btn btn-default btn-primary'>取消异常标记</button>");
+                        if (data[i].alert == 0) {
+                            normal.addClass('hidden');
+                        }
+                        else {
+                            abnormal.addClass('hidden');
+                        }
+                        td.append(abnormal);
+                        td.append(normal);
+                    }
+                }
+                if (result.fail) {
+                }
+            });
+        }
+        function getsimultaneousprocess() {
+            var begintime = $.trim($("#begintime").val());
+            var endtime = $.trim($("#endtime").val());
+            $.post('{% url 'getsimultaneousprocess' %}',
+                    {
+                        begintime: begintime,
+                        endtime: endtime,
+                    }, function (result) {
+                        if (result.success) {
+                            var field = result.context.middle.field;
+                            var data = result.context.middle.data;
+                            var table = $(".table");
+                            table.children().remove();
+                            var thead = $("<thead></thead>");
+                            table.append(thead);
+                            var tr1 = $("<tr></tr>");
+                            thead.append(tr1);
+                            for (x in field) {
+                                tr1.append($("<th>" + field[x] + "</th>"));
+                            }
+                            var tbody = $("<tbody></tbody>");
+                            table.append(tbody);
+                            for (i in data) {
+                                var tr = $("<tr></tr>");
+                                tbody.append(tr);
+                                for (j in data[i]) {
+                                    if (data[i][j]) {
+                                        tr.append($("<td>" + data[i][j] + "</td>"));
+                                    } else {
+                                        tr.append($("<td></td>"));
+                                    }
+                                }
+                            }
+                        }
+                        if (result.fail) {
+                        }
+                    });
+        }
+        function markabnormal(tableid, id) {
+            $.post('{% url 'markabnormal' %}', {
+                tableid: tableid,
+                id: id,
+                type: 3,
+            }, function (result) {
+                if (result.success) {
+                    $("#abnormal" + tableid + "_" + id).addClass("hidden");
+                    $("#normal" + tableid + "_" + id).removeClass("hidden");
+                }
+                if (result.fail) {
+                }
+            });
+        }
+        function marknormal(tableid, id) {
+            $.post('{% url 'marknormal' %}', {
+                tableid: tableid,
+                id: id,
+                type: 3,
+            }, function (result) {
+                if (result.success) {
+                    $("#abnormal" + tableid + "_" + id).removeClass("hidden");
+                    $("#normal" + tableid + "_" + id).addClass("hidden");
+                }
+                if (result.fail) {
+                }
+            });
+        }
+        function checkall() {
+            var checked = $("#checkall").prop("checked");
+            if (checked) {
+                $(".checkrow").each(function () {
+                    $(this).prop("checked", true);
+                });
+            }
+            else {
+                $(".checkrow").each(function () {
+                    $(this).removeAttr("checked", false);
+                });
+            }
+        }
+        ;
+        function getexcept(id) {
+            $("#filter").text("计算中")
+            var parameter = new Array();
+            $(".checkrow").each(function () {
+                if ($(this).is(':checked')) {
+                    parameter.push($(this).attr('name'));
+                }
+            });
+            $.post('{% url 'aprioriexceptfilter' %}', {
+                parameter: parameter,
+                id: id
+            }, function (result) {
+                if (result.success) {
+                    $("#watch").removeClass("hidden");
+                    $("#filter").text("重新筛选除选中规律外的数据");
+                }
+                if (result.fail) {
+                    $("#filter").text("计算失败");
+                }
+            });
+        }
+    </script>
+{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="page-header">
+                <h3>apriori结果表</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="panel-group" id="accordion1" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-danger">
+                    <div class="panel-heading" role="tab" id="headingUnpayed1">
+                        <div class="container">
+                            <div class="row clearfix">
+                                <div class="col-md-6 column">
+                                    <h4 class="panel-title">
+                                        <a style="font-size: 25px" role="button" data-toggle="collapse"
+                                           data-parent="#accordion1" href="#collapseUnpayed1"
+                                           aria-expanded="true" aria-controls="collapseUnpayed1">
+                                            {{ middle.name }}
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div class="col-md-2 column">
+                                    <a href="{% url 'showrawlist' %}">
+                                        <button class="btn btn-default btn-primary pull-right">查看全部原数据表</button>
+                                    </a>
+                                </div>
+                                <div class="col-md-2 column">
+                                    {% if middle.id != '3' %}
+                                        <a href="{% url 'showmiddlelist' middle.id %}">
+                                            <button class="btn btn-default btn-primary pull-right">查看中间表</button>
+                                        </a>
+                                    {% else %}
+                                        <a href="{% url 'showresultlist' %}">
+                                            <button class="btn btn-default btn-primary pull-right">查看分类规律表</button>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                                {% if middle.id != '3' %}
+                                    <div class="col-md-2 column">
+                                        <a href="{% url 'showgenelist' middle.id %}">
+                                            <button class="btn btn-default btn-primary pull-right">查看遗传算法结果表</button>
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div id="collapseUnpayed1" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="headingUnpayed1">
+                        <div class="panel-body">
+                            {% if middle.id != '3' %}
+                                <div class="container">
+                                    <div class="row clearfix">
+                                        {% for f in middle.field %}
+                                            {% if f != 'id' and f != 'create_time' and f != 'support' and f != 'alert' %}
+                                                <div class="col-md-2 column">
+                                                    <label><input class="checkbox" name="{{ f }}" type="checkbox"
+                                                                  value=""/>{{ f }}</label>
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <div class="container">
+                                    <div class="row clearfix">
+                                        <div class="col-md-8 column">
+                                        </div>
+                                        <div class="col-md-2 column">
+                                            <button onclick="filter ({{ middle.id }})"
+                                                    class="btn btn-default btn-primary pull-right">
+                                                筛选
+                                            </button>
+                                        </div>
+                                        <div class="col-md-2 column">
+                                            <a href="{% url 'showapriorilist' middle.id %}">
+                                                <button class="btn btn-default btn-primary pull-left">
+                                                    重置
+                                                </button>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr/>
+                            {% else %}
+                                <div class="container">
+                                    <div class="row clearfix">
+                                        <div class="col-md-3 column">
+                                            <input type="text" id="begintime" class="form-control"
+                                                   placeholder="输入起始时间 格式HH:MM:SS">
+                                        </div>
+                                        <div class="col-md-3 column">
+                                            <input type="text" id="endtime" class="form-control"
+                                                   placeholder="输入结束时间 格式HH:MM:SS">
+                                        </div>
+                                        <div class="col-md-2 column">
+                                            <button onclick="getsimultaneousprocess()"
+                                                    class="btn btn-default btn-primary">
+                                                挖掘规律
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr/>
+                            {% endif %}
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    {% if middle.id != '3' %}
+                                        <th>
+                                            <label><input id="checkall" type="checkbox" onchange="checkall()"
+                                                    /></label>
+                                        </th>
+                                    {% endif %}
+                                    {% for f in middle.field %}
+                                        <th>{{ f }}</th>
+                                    {% endfor %}
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for row in middle.data %}
+                                    <tr>
+                                        {% if middle.id != '3' %}
+                                            <td>
+                                                <label><input class="checkrow" name="{{ row.id }}" type="checkbox"
+                                                        /></label>
+                                            </td>
+                                        {% endif %}
+                                        <td>{{ row.id }}</td>
+                                        {% for r in row.info %}
+                                            {% if r != None %}
+                                                <td>{{ r }}</td>
+                                            {% else %}
+                                                <td></td>
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if middle.id != '3' %}
+                                            <td>
+                                                <button onclick="markabnormal({{ middle.id }},{{ row.id }})"
+                                                        id="abnormal{{ middle.id }}_{{ row.id }}"
+                                                        class="btn btn-danger btn-primary {% if row.alert == 1 %}hidden{% endif %}">
+                                                    标记异常
+                                                </button>
+                                                <button onclick="marknormal({{ middle.id }},{{ row.id }})"
+                                                        id="normal{{ middle.id }}_{{ row.id }}"
+                                                        class="btn btn-default btn-primary {% if row.alert == 0 %}hidden{% endif %}">
+                                                    取消异常标记
+                                                </button>
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            <hr/>
+                            {% if middle.id != '3' %}
+                                <div class="container">
+                                    <div class="row clearfix">
+                                        <div class="col-md-12 column">
+                                            <a href="{% url "showexceptlist" middle.id %}" style="width: inherit">
+                                                <button id="watch" class="btn btn-default btn-primary hidden"
+                                                        style="width: inherit">
+                                                    查看除选中规律外的数据
+                                                </button>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <br>
+
+                                    <div class="row clearfix">
+                                        <div class="col-md-12 column">
+                                            <button id="filter" class="btn btn-default btn-primary "
+                                                    onclick="getexcept({{ middle.id }})" style="width: inherit">
+                                                筛选出除选中规律外的数据
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{ block.super }}
+{% endblock %}

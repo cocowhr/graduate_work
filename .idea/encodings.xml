@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/static" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/static/css/docs.css" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/static/css/fileinput.min.css" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/static/images/logo.png" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/static/js/bootstrap.min.js" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/static/js/fileinput.min.js" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/static/js/jquery.flexisel.js" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/static/js/jquery.min.js" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/static/js/simpleCart.min.js" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/templates/html" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/templates/html/layout.html" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/templates/html/rawlist.html" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/view/views.py" charset="UTF-8" />
+  </component>
+</project>

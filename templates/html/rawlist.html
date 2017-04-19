@@ -1,0 +1,207 @@
+{% extends 'html/layout.html' %}
+{% load staticfiles %}
+{% block headjs %}
+    <script type="text/javascript">
+        function getmiddlelist(id) {
+            $("#middletwo" + id).text("计算中");
+            $.post('{% url 'getmiddlelist' %}', {
+                id: id
+            }, function (result) {
+                if (result.success) {
+                    $("#middletwo" + id).addClass("hidden");
+                    $("#middleone" + id).removeClass("hidden");
+                    $("#aprioritwo" + id).removeClass("hidden");
+                    $("#gene" + id).removeClass("hidden");
+                }
+                if (result.fail) {
+                    $("#middletwo" + id).text("计算失败");
+                }
+            });
+        }
+        function getapriorilist(id) {
+            $("#aprioritwo" + id).text("计算中");
+            $.post('{% url 'getapriorilist' %}', {
+                id: id
+            }, function (result) {
+                if (result.success) {
+                    $("#aprioritwo" + id).addClass("hidden");
+                    $("#apriorione" + id).removeClass("hidden");
+                }
+                if (result.fail) {
+                    $("#aprioritwo" + id).text("计算失败");
+                }
+            });
+        }
+        function markabnormal(tableid, id) {
+            $.post('{% url 'markabnormal' %}', {
+                tableid: tableid,
+                id: id,
+                type: 1,
+            }, function (result) {
+                if (result.success) {
+                    $("#abnormal" + tableid + "_" + id).addClass("hidden");
+                    $("#normal" + tableid + "_" + id).removeClass("hidden");
+                }
+                if (result.fail) {
+                }
+            });
+        }
+        function marknormal(tableid, id) {
+            $.post('{% url 'marknormal' %}', {
+                tableid: tableid,
+                id: id,
+                type: 1,
+            }, function (result) {
+                if (result.success) {
+                    $("#abnormal" + tableid + "_" + id).removeClass("hidden");
+                    $("#normal" + tableid + "_" + id).addClass("hidden");
+                }
+                if (result.fail) {
+                }
+            });
+        }
+    </script>
+{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="page-header">
+                <div class="container">
+                    <div class="row clearfix">
+                        <div class="col-md-10 column">
+                            <h3>原始数据表</h3>
+                        </div>
+                        <div class="col-md-2 column">
+                            <h3>数据表上传</h3>
+
+                            <form enctype="multipart/form-data" method="POST" action="{% url 'uploadsql' %}">
+                                {% csrf_token %}
+                                <input type="text" name="tabledescription" placeholder="请输入表描述"/>
+                                <input type="text" name="tablename" placeholder="请输入表名"/>
+                                <input type="file" name="sqlfile"/>
+                                <input class="btn btn-warning btn-primary" type="submit" value="上传文件"/>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            {% for t in table %}
+                <div class="panel-group" id="accordion{{ t.id }}" role="tablist" aria-multiselectable="true">
+                    <div class="panel panel-danger">
+                        <div class="panel-heading" role="tab" id="headingUnpayed{{ t.id }}">
+                            <div class="container">
+                                <div class="row clearfix">
+                                    <div class="col-md-3 column">
+                                        <h4 class="panel-title">
+                                            <a style="font-size: 25px" role="button" data-toggle="collapse"
+                                               data-parent="#accordion{{ t.id }}" href="#collapseUnpayed{{ t.id }}"
+                                               aria-expanded="true" aria-controls="collapseUnpayed{{ t.id }}">
+                                                {{ t.name }}
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div class="col-md-2 column">
+                                        {% if t.id > 5 %}
+                                            <a href="{% url 'deletelist' t.id %}">
+                                                <button class="btn btn-danger btn-primary pull-right">删除该表</button>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="col-md-2 column">
+
+                                        <a href="{% url 'showmiddlelist' t.id %}">
+                                            <button id="middleone{{ t.id }}"
+                                                    class="btn btn-default btn-primary pull-right {% if t.id == 3 or t.stage == '0' %}hidden{% endif %}">
+                                                查看中间表
+                                            </button>
+                                        </a>
+                                        {% if  t.stage == '0' %}
+                                            <button onclick="getmiddlelist({{ t.id }})" id="middletwo{{ t.id }}"
+                                                    class="btn btn-default btn-primary pull-right">计算中间表
+                                            </button>
+                                        {% elif t.stage == '0' %}
+                                        {% endif %}
+                                    </div>
+
+
+                                    <div class="col-md-2 column ">
+                                        <a href="{% url 'showapriorilist' t.id %}">
+                                            <button id="apriorione{{ t.id }}"
+                                                    class="btn btn-default btn-primary pull-right {% if t.stage != '3' %}hidden {% endif %}">
+                                                查看apriori结果表
+                                            </button>
+                                        </a>
+                                        {% if t.stage != '3' %}
+                                            <button onclick="getapriorilist({{ t.id }})" id="aprioritwo{{ t.id }}"
+                                                    class="btn btn-default btn-primary pull-right {% if t.stage == '0' %}hidden{% endif %}">
+                                                计算apriori结果
+                                            </button>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="col-md-2 column">
+                                        <a href="{% url 'showgenelist' t.id %}">
+                                            <button id="gene{{ t.id }}"
+                                                    class="btn btn-default btn-primary pull-right{% if t.id == 3 or t.stage == '0' %} hidden{% endif %}">
+                                                查看遗传算法结果表
+                                            </button>
+                                        </a>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div id="collapseUnpayed{{ t.id }}" class="panel-collapse collapse in" role="tabpanel"
+                             aria-labelledby="headingUnpayed{{ t.id }}">
+                            <div class="panel-body">
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        {% for f in t.field %}
+                                            <th>{{ f }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for row in t.data %}
+                                        <tr>
+                                            <td>{{ row.id }}</td>
+                                            {% for r in row.info %}
+                                                <td>{{ r }}</td>
+                                            {% endfor %}
+                                            <td>
+                                                {% if t.id != 3 %}
+                                                    <button onclick="markabnormal({{ t.id }},{{ row.id }})"
+                                                            id="abnormal{{ t.id }}_{{ row.id }}"
+                                                            class="btn btn-danger btn-primary {% if row.alert == 1 %}hidden{% endif %}">
+                                                        标记异常
+                                                    </button>
+                                                    <button onclick="marknormal({{ t.id }},{{ row.id }})"
+                                                            id="normal{{ t.id }}_{{ row.id }}"
+                                                            class="btn btn-default btn-primary {% if row.alert == 0 %}hidden{% endif %}">
+                                                        取消异常标记
+                                                    </button>
+
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {{ block.super }}
+{% endblock %}
