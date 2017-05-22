@@ -12,6 +12,7 @@
                     $("#middleone" + id).removeClass("hidden");
                     $("#aprioritwo" + id).removeClass("hidden");
                     $("#gene" + id).removeClass("hidden");
+                    $("#markov" + id).removeClass("hidden");
                 }
                 if (result.fail) {
                     $("#middletwo" + id).text("计算失败");
@@ -105,10 +106,10 @@
                                             </a>
                                         </h4>
                                     </div>
-                                    <div class="col-md-2 column">
+                                    <div class="col-md-1 column">
                                         {% if t.id > 5 %}
                                             <a href="{% url 'deletelist' t.id %}">
-                                                <button class="btn btn-danger btn-primary pull-right">删除该表</button>
+                                                <button class="btn btn-danger btn-primary">删除该表</button>
                                             </a>
                                         {% endif %}
                                     </div>
@@ -117,13 +118,13 @@
 
                                         <a href="{% url 'showmiddlelist' t.id %}">
                                             <button id="middleone{{ t.id }}"
-                                                    class="btn btn-default btn-primary pull-right {% if t.id == 3 or t.stage == '0' %}hidden{% endif %}">
+                                                    class="btn btn-default btn-primary  {% if t.id == 3 or t.stage == '0' %}hidden{% endif %}">
                                                 查看中间表
                                             </button>
                                         </a>
                                         {% if  t.stage == '0' %}
                                             <button onclick="getmiddlelist({{ t.id }})" id="middletwo{{ t.id }}"
-                                                    class="btn btn-default btn-primary pull-right">计算中间表
+                                                    class="btn btn-default btn-primary">计算中间表
                                             </button>
                                         {% elif t.stage == '0' %}
                                         {% endif %}
@@ -133,14 +134,14 @@
                                     <div class="col-md-2 column ">
                                         <a href="{% url 'showapriorilist' t.id %}">
                                             <button id="apriorione{{ t.id }}"
-                                                    class="btn btn-default btn-primary pull-right {% if t.stage != '3' %}hidden {% endif %}">
-                                                查看apriori结果表
+                                                    class="btn btn-default btn-primary  {% if t.stage != '3' %}hidden {% endif %}">
+                                                查看apriori规律表
                                             </button>
                                         </a>
                                         {% if t.stage != '3' %}
                                             <button onclick="getapriorilist({{ t.id }})" id="aprioritwo{{ t.id }}"
-                                                    class="btn btn-default btn-primary pull-right {% if t.stage == '0' %}hidden{% endif %}">
-                                                计算apriori结果
+                                                    class="btn btn-default btn-primary  {% if t.stage == '0' %}hidden{% endif %}">
+                                                计算apriori规律
                                             </button>
                                         {% endif %}
                                     </div>
@@ -148,12 +149,21 @@
                                     <div class="col-md-2 column">
                                         <a href="{% url 'showgenelist' t.id %}">
                                             <button id="gene{{ t.id }}"
-                                                    class="btn btn-default btn-primary pull-right{% if t.id == 3 or t.stage == '0' %} hidden{% endif %}">
-                                                查看遗传算法结果表
+                                                    class="btn btn-default btn-primary {% if t.id == 3 or t.stage == '0' %} hidden{% endif %}">
+                                                查看遗传算法规律表
                                             </button>
                                         </a>
                                     </div>
-
+                                {% if t.id == 2 or t.id == 4 %}
+                                    <div class="col-md-2 column">
+                                        <a href="{% url 'showmarkovlsit' t.id %}">
+                                            <button id="markov{{ t.id }}"
+                                                    class="btn btn-default btn-primary {% if t.stage == '0' %} hidden{% endif %}">
+                                                查看Markov算法规律表
+                                            </button>
+                                        </a>
+                                    </div>
+                                {% endif %}
                                 </div>
                             </div>
 

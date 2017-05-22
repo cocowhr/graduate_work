@@ -24,5 +24,6 @@ urlpatterns = [
     url(r'^showaprioriabnormallist/$', view.views.showaprioriabnormallist, name="showaprioriabnormallist"),
     url(r'^aprioriexceptfilter/$', view.views.aprioriexceptfilter, name="aprioriexceptfilter"),
     url(r'^showexceptlist/(?P<id>\d+)/$', view.views.showexceptlist, name="showexceptlist"),
+    url(r'^showmarkovlsit/(?P<id>\d+)/$', view.views.showmarkovlist, name="showmarkovlsit"),
     #    url(r'^showmarkovlist/$', view.views.showmarkovlist, name="showmarkovlist"),
 ]

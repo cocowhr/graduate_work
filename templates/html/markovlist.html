@@ -1,0 +1,88 @@
+{% extends 'html/layout.html' %}
+{% load staticfiles %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="page-header">
+                <h3>Markov结果表</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="panel-group" id="accordion1" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-danger">
+                    <div class="panel-heading" role="tab" id="headingUnpayed1">
+                        <div class="container">
+                            <div class="row clearfix">
+                                <div class="col-md-6 column">
+                                    <h4 class="panel-title">
+                                        <a style="font-size: 25px" role="button" data-toggle="collapse"
+                                           data-parent="#accordion1" href="#collapseUnpayed1"
+                                           aria-expanded="true" aria-controls="collapseUnpayed1">
+                                            {{ hmm.name }}
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div class="col-md-2 column">
+                                    <a href="{% url 'showrawlist' %}">
+                                        <button class="btn btn-default btn-primary pull-right">查看全部原数据表</button>
+                                    </a>
+                                </div>
+                                <div class="col-md-2 column">
+                                    <a href="{% url 'showmiddlelist' hmm.id %}">
+                                        <button class="btn btn-default btn-primary pull-right">查看中间表</button>
+                                    </a>
+                                </div>
+                                {% if hmm.stage == '3' %}
+                                    <div class="col-md-2 column">
+                                        <a href="{% url 'showapriorilist' hmm.id %}">
+                                            <button class="btn btn-default btn-primary pull-right">查看apriori结果表</button>
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="collapseUnpayed1" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="headingUnpayed1">
+                        <div class="panel-body">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    {% for f in hmm.field %}
+                                        <th>{{ f }}</th>
+                                    {% endfor %}
+                                </tr>
+                                </thead>
+                                <tbody class="tbody">
+                                {% for row in hmm.data %}
+                                    <tr class="spe">
+                                        <td>{{ row.id }}</td>
+                                        {% for r in row.info %}
+                                            {% if r != None %}
+                                                <td>{{ r }}</td>
+                                            {% else %}
+                                                <td></td>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <td>
+                                            <button id="abnormal{{ t.id }}_{{ row.id }}"
+                                                    class="btn btn-danger btn-primary">
+                                                标记异常
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{ block.super }}
+{% endblock %}

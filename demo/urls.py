@@ -19,4 +19,5 @@ import view.urls
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^view/', include(view.urls)),
+    url(r'^$', view.views.rawlist),
 ]

@@ -113,14 +113,14 @@ def pickchroms(popcurrent, popnext):
 
 #计算适应度函数
 def calculatefit(chrom, codes, ref):
-    E = LEN
+    # E = LEN
     ci = 0.0
     i = 0
     while i < LEN:
         if chrom.seq[i] != 0:
             ci += codes[chrom.seq[i] - 1].count
-        else:
-            E -= 1
+        # else:
+        #     E -= 1
         i += 1
     j = 0
     while j < ST:
@@ -135,7 +135,8 @@ def calculatefit(chrom, codes, ref):
         if eq:
             chrom.M += 1
         j += 1
-    chrom.fit = ci * chrom.M * pow(NS, E) / ST
+    # chrom.fit = ci * chrom.M * pow(NS, E) / ST
+    chrom.fit = ci * chrom.M
 
 #读取ref 获得LEN和ST
 def readref(target):
@@ -163,8 +164,8 @@ def readref(target):
     except  Exception:
         print("error")
 
-#读取codes 获得NS
-def readcodes(target):
+#读取count 获得NS
+def readcounts(target):
     codes = []
     conn = getConnection()
     cur = conn.cursor()
@@ -220,7 +221,7 @@ def writerules(popcurrent,target,codes,field):
     conn.close()
 def getrules(target,field):
     ref = readref(target)
-    codes = readcodes(target+"_count")
+    codes = readcounts(target+"_count")
     popcurrent = evpop(codes, ref)
     dd = 0
     while dd < NUM:
@@ -254,7 +255,7 @@ def search_fit(target,seq):
     chrom=Chrom()
     chrom.seq=seq
     ref=readref(target)
-    codes=readcodes(target+"_count")
+    codes=readcounts(target+"_count")
     calculatefit(chrom,codes,ref)
     return chrom.fit
 

@@ -21,8 +21,8 @@
                         }
                         var td = $("<td></td>");
                         tr.append(td);
-                        var abnormal = $("<button id='abnormal"+id+"_"+data[i].id+"' onclick='markabnormal("+id+","+data[i].id+")' class='btn btn-danger btn-primary'>标记异常</button>");
-                        var normal = $("<button id='normal"+id+"_"+data[i].id+"' onclick='marknormal("+id+","+data[i].id+")' class='btn btn-default btn-primary'>取消异常标记</button>");
+                        var abnormal = $("<button id='abnormal" + id + "_" + data[i].id + "' onclick='markabnormal(" + id + "," + data[i].id + ")' class='btn btn-danger btn-primary'>标记异常</button>");
+                        var normal = $("<button id='normal" + id + "_" + data[i].id + "' onclick='marknormal(" + id + "," + data[i].id + ")' class='btn btn-default btn-primary'>取消异常标记</button>");
                         if (data[i].alert == 0) {
                             normal.addClass('hidden');
                         }
@@ -111,8 +111,8 @@
                         }
                         var td = $("<td></td>");
                         tr.append(td);
-                        var abnormal = $("<button id='abnormal"+id+"_"+data[i].id+"' onclick='markabnormal("+id+","+data[i].id+")' class='btn btn-danger btn-primary'>标记异常</button>");
-                        var normal = $("<button id='normal"+id+"_"+data[i].id+"' onclick='marknormal("+id+","+data[i].id+")' class='btn btn-default btn-primary'>取消异常标记</button>");
+                        var abnormal = $("<button id='abnormal" + id + "_" + data[i].id + "' onclick='markabnormal(" + id + "," + data[i].id + ")' class='btn btn-danger btn-primary'>标记异常</button>");
+                        var normal = $("<button id='normal" + id + "_" + data[i].id + "' onclick='marknormal(" + id + "," + data[i].id + ")' class='btn btn-default btn-primary'>取消异常标记</button>");
                         if (data[i].alert == 0) {
                             normal.addClass('hidden');
                         }
@@ -134,7 +134,7 @@
     <div class="row">
         <div class="col-md-10 col-md-offset-1">
             <div class="page-header">
-                <h3>遗传算法结果表</h3>
+                <h3>遗传算法规律表</h3>
             </div>
         </div>
     </div>
@@ -168,7 +168,7 @@
                                 {% if gene.stage == '3' %}
                                     <div class="col-md-2 column">
                                         <a href="{% url 'showapriorilist' gene.id %}">
-                                            <button class="btn btn-default btn-primary pull-right">查看apriori结果表</button>
+                                            <button class="btn btn-default btn-primary pull-right">查看apriori规律表</button>
                                         </a>
                                     </div>
                                 {% endif %}

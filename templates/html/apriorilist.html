@@ -167,7 +167,7 @@
     <div class="row">
         <div class="col-md-10 col-md-offset-1">
             <div class="page-header">
-                <h3>apriori结果表</h3>
+                <h3>apriori规律表</h3>
             </div>
         </div>
     </div>
@@ -207,7 +207,7 @@
                                 {% if middle.id != '3' %}
                                     <div class="col-md-2 column">
                                         <a href="{% url 'showgenelist' middle.id %}">
-                                            <button class="btn btn-default btn-primary pull-right">查看遗传算法结果表</button>
+                                            <button class="btn btn-default btn-primary pull-right">查看遗传算法规律表</button>
                                         </a>
                                     </div>
                                 {% endif %}
@@ -251,6 +251,12 @@
                                     </div>
                                 </div>
                                 <hr/>
+                                <div class="container">
+                                    <div class="row clearfix">
+                                        <div class="col-md-12 column">
+                                        </div>
+                                    </div>
+                                </div>
                             {% else %}
                                 <div class="container">
                                     <div class="row clearfix">

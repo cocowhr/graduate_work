@@ -4,11 +4,13 @@ from django.views.decorators.csrf import csrf_exempt
 from algorithm import genefunc
 from algorithm import execute
 from algorithm import apriorifunc
+from algorithm import hmm
 import pymysql
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.http import JsonResponse
 import random
 import os
+import time
 
 
 def getConnection():
@@ -24,7 +26,7 @@ def getalldata(type):
     if type == 1:
         sql = "SELECT * FROM supervision.data_process_table"
     elif type >= 2:
-        sql = "SELECT * FROM supervision.data_process_table where `id` != 3"
+        sql = "SELECT * FROM supervision.data_process_table where `id` != 3 and `stage` > 0"
     cur.execute(sql)
     res = cur.fetchall()
     tables = []
@@ -193,7 +195,7 @@ def showmiddlelist(request, id):
         codes['data'] = data
         codes['field'] = field
         codes['id'] = id
-        codes['name'] = res1[0][1] + unicode("代码表", "utf-8")
+        codes['name'] = res1[0][1] + unicode("编码表", "utf-8")
         context['codes'] = codes
     cur.close()
     conn.commit()
@@ -429,6 +431,7 @@ def savegene(request):
 
 
 def uploadsql(request):
+    start = time.clock()
     file_obj = request.FILES.get('sqlfile', None)
     tablename = request.POST['tablename']
     conn = getConnection()
@@ -455,6 +458,8 @@ def uploadsql(request):
         cmd = "mysql -u root -proot supervision < " + file_full_path
         os.system(cmd)
         os.remove(file_full_path)
+        end = time.clock()
+        print str(end - start) + "s"
         context = getalldata(1)
         return render(request, 'html/rawlist.html', context)
     else:
@@ -498,6 +503,7 @@ def deletelist(request, id):
 
 @csrf_exempt
 def getmiddlelist(request):
+    start = time.clock()
     id = request.POST['id']
     conn = getConnection()
     cur = conn.cursor()
@@ -512,6 +518,8 @@ def getmiddlelist(request):
     execute.preexecute(target, field)
     sql = "Update data_process_table set stage='1' where `id`='%s'" % (id)
     cur.execute(sql)
+    end = time.clock()
+    print str(end - start) + "s"
     cur.close()
     conn.commit()
     conn.close()
@@ -520,6 +528,7 @@ def getmiddlelist(request):
 
 @csrf_exempt
 def getapriorilist(request):
+    start=time.clock()
     id = request.POST['id']
     conn = getConnection()
     cur = conn.cursor()
@@ -534,6 +543,8 @@ def getapriorilist(request):
     apriorifunc.get_table_rules(target, field)
     sql = "Update data_process_table set stage='%d' where `id`='%s'" % (stage, id)
     cur.execute(sql)
+    end = time.clock()
+    print str(end - start) + "s"
     cur.close()
     conn.commit()
     conn.close()
@@ -542,6 +553,7 @@ def getapriorilist(request):
 
 @csrf_exempt
 def calculategenelist(request):
+    start=time.clock()
     id = request.POST['id']
     conn = getConnection()
     cur = conn.cursor()
@@ -552,11 +564,14 @@ def calculategenelist(request):
     targetraw = target + "_raw"
     field = getfield(targetraw)[1:]  # 去掉id
     field = field[:-1]  # 去掉alert
-    genefunc.getrules(target, field)
+    for i in range(0,10):
+        genefunc.getrules(target, field)
     cur.close()
     conn.commit()
     conn.close()
     context = getgenelist(id)
+    end = time.clock()
+    print str(end - start) + "s"
     return JsonResponse({'success': True, 'context': context})
 
 
@@ -663,21 +678,21 @@ def aprioriexceptfilter(request):
         filters = res[0]
         for t in table[::-1]:
             hit = True
-            a=t
+            a = t
             for i in range(1, len(field) - 2):
                 if filters[i]:
-                    if field[i]=="time":
-                        if filters[i]==unicode("凌晨","utf-8"):#0-5:59:59
-                            if t[i].hour>=6:
+                    if field[i] == "time":
+                        if filters[i] == unicode("凌晨", "utf-8"):  # 0-5:59:59
+                            if t[i].hour >= 6:
                                 hit = False
-                        elif filters[i]==unicode("上午","utf-8"):#6-11:59:59
-                            if t[i].hour>=12 or t[i].hour<6:
+                        elif filters[i] == unicode("上午", "utf-8"):  # 6-11:59:59
+                            if t[i].hour >= 12 or t[i].hour < 6:
                                 hit = False
-                        elif filters[i]==unicode("下午","utf-8"):#12-17:59:59
-                            if t[i].hour>=18 or t[i].hour<12:
+                        elif filters[i] == unicode("下午", "utf-8"):  # 12-17:59:59
+                            if t[i].hour >= 18 or t[i].hour < 12:
                                 hit = False
-                        elif filters[i]==unicode("晚上","utf-8"):#18-23:59:59
-                            if t[i].hour<18:
+                        elif filters[i] == unicode("晚上", "utf-8"):  # 18-23:59:59
+                            if t[i].hour < 18:
                                 hit = False
                     elif filters[i] != t[i]:
                         hit = False
@@ -697,8 +712,8 @@ def aprioriexceptfilter(request):
 
 
 def showexceptlist(request, id):
-    table={}
-    data=[]
+    table = {}
+    data = []
     conn = getConnection()
     cur = conn.cursor()
     context = {}
@@ -714,9 +729,9 @@ def showexceptlist(request, id):
     ids = []
     for r in res:
         ids += [r[0]]
-    field=getfield(targetraw)
-    for m in range(0,15):
-        sql = "SELECT * FROM %s WHERE id ='%s' " % (targetraw,ids[m])
+    field = getfield(targetraw)
+    for m in range(0, 15):
+        sql = "SELECT * FROM %s WHERE id ='%s' " % (targetraw, ids[m])
         cur.execute(sql)
         res = cur.fetchall()
         for r in res:
@@ -730,5 +745,49 @@ def showexceptlist(request, id):
     table['data'] = data
     table['field'] = field
     table['id'] = id
-    context['table']=table
+    context['table'] = table
     return render(request, 'html/exceptlist.html', context)
+
+
+def showmarkovlist(request, id):
+    start = time.clock()
+    table = {}
+    data = []
+    conn = getConnection()
+    cur = conn.cursor()
+    context = {}
+    context['table'] = []
+    sql = "SELECT * FROM supervision.data_process_table where `id` = '%s'" % (id)
+    cur.execute(sql)
+    res = cur.fetchall()
+    target = res[0][1]
+    table['name'] = res[0][2] + unicode("Markov规律表", "utf-8")
+    targetraw = res[0][1] + "_raw"
+    targetcodes = res[0][1] + "_codes"
+    field = getfield(targetraw)
+    k = 1
+    for i in range(0,len(field)-1-2):
+        sql = "SELECT id FROM %s where `column` = '%s'" % (targetcodes, str(i))
+        cur.execute(sql)
+        res = cur.fetchall()
+        ids = []
+        for r in res:
+            ids += [r[0]]
+        v = hmm.getviterbi(target, ids,len(field)-i-2)
+        for v1 in v:
+            row = {}
+            row['info'] = []
+            row['id'] = k
+            k += 1
+            for m in range(0,len(field)-len(v1)-2):
+                row['info']+=['']
+            for j in range(0, len(v1)):
+                row['info'] += [v1[j]]
+            data += [row]
+    table['data'] = data
+    table['field'] = field
+    table['id'] = id
+    context['hmm'] = table
+    end = time.clock()
+    print str(end - start) + "s"
+    return render(request, 'html/markovlist.html', context)

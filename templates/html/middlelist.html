@@ -33,14 +33,14 @@
                                 {% if number.stage == '3' %}
                                  <div class="col-md-2 column">
                                         <a href="{% url 'showapriorilist' number.id %}">
-                                            <button class="btn btn-default btn-primary pull-right">查看apriori结果表</button>
+                                            <button class="btn btn-default btn-primary pull-right">查看apriori规律表</button>
                                         </a>
                                     </div>
                                 {% endif %}
                                 {% if number.stage >= '5'  %}
                                     <div class="col-md-2 column">
                                         <a href="{% url 'showgenelist' number.id %}">
-                                            <button class="btn btn-default btn-primary pull-right">查看遗传算法结果表</button>
+                                            <button class="btn btn-default btn-primary pull-right">查看遗传算法规律表</button>
                                         </a>
                                     </div>
                             {% endif %}
